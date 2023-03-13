@@ -60,5 +60,5 @@ ggplot(african_sentiment_full, #using fully joined data
        x = "",
        y = "Density of Three Different Sentiments",
        color = "Levels of Sentiment") #couldn't change the legend title
-
+ggsave(here("African_Languages","Output","Sentiments.jpeg"))
 
