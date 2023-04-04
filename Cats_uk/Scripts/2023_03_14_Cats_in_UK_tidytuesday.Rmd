@@ -1,0 +1,86 @@
+---
+title: "Cats in the UK"
+author: "Cindy Fajardo"
+date: "`r Sys.Date()`"
+output: hrbrthemes::ipsum
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.path = "../Output/")
+```
+
+# Introduction
+For this weeks TidyTuesday, we will looking at cat data! Between 2013 and 2017, Roland Kays et al. convinced hundreds of volunteers in the U.S., U.K., Australia, and New Zealand to strap GPS sensors on their pet cats. The data collected include each cat’s characteristics (such as age, sex, neuter status, hunting habits) and time-stamped GPS pings. I will use the information from the UK. 
+
+# Load Libraries
+```{r, Libraries}
+library(tidyverse)
+library(here)
+library(ggmap)
+library(ggsn)
+library(lubridate)
+library(devtools)
+library(kableExtra)
+library(memer)
+library(maps)
+library(mapproj)
+library(mapdata)
+library(nationalparkcolors)
+library(praise)
+library(devtools)
+library(beyonce)
+library(ggthemes)
+library(hrbrthemes)
+library(ggridges)
+library(nationalparkcolors)
+library(tidytuesdayR)
+library(ggplot2)
+library(viridis)
+```
+
+# Read in Data
+Lets read in the data and create two csv files to join later
+```{r, Read in Data}
+cats_uk <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-31/cats_uk.csv') %>% 
+  write_csv(here("Cats_uk","Data","cats_uk.csv"))
+cats_uk_reference <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-01-31/cats_uk_reference.csv') %>%  
+  write_csv(here("Cats_uk","Data","cats_uk_reference.csv"))
+
+```
+
+# Clean up the data
+Lets clean up the data and plot it. The finished product is a facet wrapped densty plot showing the count of prey per month per age group.
+```{r, Clean up data}
+cat_uk_join <- list.files(path = "C:/Users/cindy/OneDrive/Desktop/Repositories/TidyTuesday/Cats_uk/Data", # Identify all CSV files
+                       pattern = "*.csv", full.names = TRUE) %>% #looks for files that are csv pattern
+  lapply(read_csv) %>%  # Store all files in list
+  reduce(full_join, by = "tag_id") # Full-join data sets into one data set 
+
+cat_uk_join %>% 
+  drop_na() %>% #drop NA's
+  separate(col = timestamp,
+           into = c("date","time"),
+           sep = " ") %>% # seperate time and date
+  filter(animal_reproductive_condition == "Neutered" & prey_p_month > "0") %>% #filter only neutured cats
+  select(age_years, prey_p_month, animal_reproductive_condition, animal_id, date, location_lat, location_long) %>% #selected criteria I need
+  ggplot(aes(x = prey_p_month,
+             group = age_years,
+             fill = age_years))+
+    geom_density(adjust=1.5, alpha = 0.8) +
+  scale_fill_viridis(name = "Observations", option = "C")+
+    theme_ipsum() +
+    facet_wrap(~age_years) +
+  labs(title = 'Amount of Prey Caught by Neutered cats per Month Seperated By Age')+
+  xlab("Age in Years")+
+  ylab("count")+
+  theme(plot.title = element_text(size=10),
+      legend.position="none",
+      panel.spacing = unit(0.4, "lines"),
+      axis.text.y = element_text(size = 6),
+      axis.text.x = element_text(size = 6))
+
+```
+
