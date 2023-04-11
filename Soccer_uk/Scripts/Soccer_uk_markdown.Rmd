@@ -1,0 +1,102 @@
+---
+title: "Soccer_tidy_tuesday"
+author: "Cindy Fajardo"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.path = "../Output/")
+```
+
+# Welcome
+Welcome to this week's tidy tuesday. This week I will be using comes from the Premier League Match Data 2021-2022 in the UK via Evan Gower on Kaggle. Data includes teams playing, date, referee, and stats for home and away side such as fouls, shots, cards, and more! Also included is a dataset of the weekly rankings for the season. Enjoy!
+
+# Libraries
+```{r, Libraries}
+library(tidyverse)
+library(here)
+library(ggmap)
+library(ggsn)
+library(lubridate)
+library(devtools)
+library(kableExtra)
+library(memer)
+library(maps)
+library(mapproj)
+library(mapdata)
+library(nationalparkcolors)
+library(praise)
+library(devtools)
+library(beyonce)
+library(ggthemes)
+library(hrbrthemes)
+library(ggridges)
+library(nationalparkcolors)
+library(tidytuesdayR)
+library(ggplot2)
+library(viridis)
+library(forcats)
+library(RColorBrewer)
+library(patchwork)
+library(ggrepel)
+```
+
+# Read in the Data
+```{r, data}
+soccer <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-04/soccer21-22.csv')
+```
+
+
+# Data Wrangling
+I decided to use patchwork to group two similar graphs showing how many goals each team scored when they were playing at home or away.
+```{r}
+p1 <- soccer %>% #name the plot to use in patchwork later
+  arrange(FTHG) %>% #arranging using full time home goals
+  mutate(HomeTeam = fct_reorder(HomeTeam, FTHG)) %>% #trying to create a new column with the team names reordered according to the amount of goals but it isn't working
+  ggplot(aes(x = HomeTeam,
+             y = FTHG))+
+  geom_bar(stat = "identity", fill="gold", width=.7)+
+  xlab("Home Teams")+
+  ylab("Total Goals Scored")+
+  coord_flip()+
+  theme_bw()
+p1
+
+p2 <- soccer %>%
+  arrange(FTHG) %>% 
+  mutate(AwayTeam = fct_reorder(AwayTeam, FTAG)) %>% 
+  ggplot(aes(x = AwayTeam,
+             y = FTAG))+
+  geom_bar(stat = "identity", fill="red", width=.7)+
+  xlab("Away Teams")+
+  ylab("Total Goals Scored")+
+  coord_flip()+
+  theme_bw()
+p2
+
+p1+p2+plot_annotation(title = "Goals Scored of each Team during Home and Away Games in Premier League 21-22",
+                       theme = theme(plot.title = element_text(size = 10))) #plot_annotation adds the tile, used "theme =" in plot annotation
+```
+# Circular Plot
+This plot s just for funsies. I was practicing circular graphs using this data, but it is not for grading :). 
+```{r, Circular Plot}
+p <- ggplot(soccer,
+            aes(x = HomeTeam, # Note that id is a factor. If x is numeric, there is some space between the first bar
+                y = FTHG))+
+  geom_bar(stat="identity", fill=alpha("blue", 0.3)) + # # This add the bars with a blue color
+  ylim(-30,80) + # Limits of the plot = very important. The negative value controls the size of the inner circle, the positive one is useful to add size over each bar
+  theme_minimal() + # Custom the theme: no axis title and no cartesian grid
+  theme(
+    axis.text = element_blank(),
+    axis.title = element_blank(),
+    panel.grid = element_blank(),
+    plot.margin = unit(rep(-2,4), "cm")     # This remove unnecessary margin around plot
+  ) +
+  coord_polar(start = 0) # This makes the coordinate polar instead of cartesian.
+p
+```
+
