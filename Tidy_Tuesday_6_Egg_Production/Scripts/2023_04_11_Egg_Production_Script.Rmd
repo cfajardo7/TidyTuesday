@@ -1,0 +1,82 @@
+---
+title: "Egg_Production_Tidy_Tuesday"
+author: "Cindy Fajardo"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.path = "../Output/")
+```
+
+# Introduction
+This weeks TidyTuesday will be on a data set that tracks cage-free egg production in the US from July 2016 through February 2021. The data was collected by the United States Department of Agriculture (USDA). This data is only a subset of the entire data that has been collected by USDA which spans from December 2007 to present time.
+
+# Libraries
+```{r, Libraries}
+library(tidyverse)
+library(here)
+library(NatParksPalettes)
+library(devtools)
+library(beyonce)
+library(ggthemes)
+library(hrbrthemes)
+library(viridis)
+```
+
+
+# Read in Data
+```{r, Read in Data}
+eggproduction  <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-11/egg-production.csv') # used this one
+cagefreepercentages <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-04-11/cage-free-percentages.csv')
+
+```
+
+# Data Wrangling
+```{r, Data Wrangling}
+eggproduction_clean <- eggproduction %>% 
+  select(observed_month, prod_type, prod_process, n_eggs) %>% # selected columns i will work with
+  mutate(year = year(observed_month), # separated year
+    month = month(observed_month)) %>% # separated month
+  filter(year %in% c(2016, 2017,2018, 2019)) # filtered for years I will be using
+
+eggproduction_clean$egg_type_process<-paste(eggproduction_clean$prod_type, eggproduction_clean$prod_process, sep="_") #pasted production type and production process to create new labels for type of egg
+
+eggproduction_clean$year_month<-paste(eggproduction_clean$year, eggproduction_clean$month, sep="_") ##pasted production type and production process to create new labels for type of egg
+
+```
+
+# Plot
+```{r, Plot}
+egg_type_labs <- list(
+  'hatching eggs_all'="Hatching Eggs",
+  'table eggs_all'="All Table Eggs",
+  'table eggs_cage-free (non-organic)'="Table Eggs Non-Organic",
+  'table eggs_cage-free (organic)'="Table Eggs Organic"
+) #created a list with the labels for the egg types
+
+egg_labeller <- function(variable,value){
+  return(egg_type_labs[value])
+} #created a funtion to create labels
+
+
+eggproduction_clean %>% 
+  group_by(year, egg_type_process) %>% # grouped by year and egg type
+  summarise(avg_n_eggs = mean(n_eggs)) %>% #averaeged the number of eggs per year
+  ggplot(aes(x = year,
+             y= avg_n_eggs,
+             fill = egg_type_process))+
+  geom_col()+
+  facet_wrap(~egg_type_process,
+             labeller=egg_labeller)+ #inserted my function here to change facet labels
+  theme_bw()+
+  guides(fill = FALSE)+ # hide legend
+  labs(title = "Average of Type of Egg Produced from 2016-2019",
+       x = "Year",
+       y = "Average Egg Production")+
+  scale_y_continuous(breaks=c(2000000000, 4000000000, 6000000000, 8000000000), labels=c('2 Billion', '4 Billion', '6 Billion', '8 Billion')) # created breaks and labels for y axis
+```
+
