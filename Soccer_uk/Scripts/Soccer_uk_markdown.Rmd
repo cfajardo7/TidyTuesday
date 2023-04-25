@@ -17,10 +17,7 @@ Welcome to this week's tidy tuesday. This week I will be using comes from the Pr
 
 # Libraries
 ```{r, Libraries}
-library(tidyverse)
 library(here)
-library(ggmap)
-library(ggsn)
 library(lubridate)
 library(devtools)
 library(kableExtra)
@@ -28,21 +25,15 @@ library(memer)
 library(maps)
 library(mapproj)
 library(mapdata)
-library(nationalparkcolors)
 library(praise)
 library(devtools)
 library(beyonce)
-library(ggthemes)
-library(hrbrthemes)
-library(ggridges)
-library(nationalparkcolors)
+library(NatParksPalettes)
 library(tidytuesdayR)
-library(ggplot2)
-library(viridis)
 library(forcats)
 library(RColorBrewer)
+library(tidyverse)
 library(patchwork)
-library(ggrepel)
 ```
 
 # Read in the Data
@@ -81,6 +72,7 @@ p2
 p1+p2+plot_annotation(title = "Goals Scored of each Team during Home and Away Games in Premier League 21-22",
                        theme = theme(plot.title = element_text(size = 10))) #plot_annotation adds the tile, used "theme =" in plot annotation
 ```
+
 # Circular Plot
 This plot s just for funsies. I was practicing circular graphs using this data, but it is not for grading :). 
 ```{r, Circular Plot}

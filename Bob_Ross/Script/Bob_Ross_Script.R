@@ -50,3 +50,4 @@ ggplot(colors_used,
   guides(fill=guide_legend(title="Colors")) #changes legend when using fill instead of color
 
 ggsave(here("Bob_Ross","Output","bob_ross.jpg"))
+
