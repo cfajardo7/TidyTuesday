@@ -1,0 +1,57 @@
+---
+title: "2023_04_25_Timezones"
+author: "Cindy Fajardo"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.path = "../Output/")
+```
+
+# Welcome
+Welcome to my final tidytuesday hooray! This week I will be using the data from the IANA tz database via the {clock} and {tzdb} packages. You can find the link to the github page [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2023/2023-03-28).What I will be doing is placing clustered markers for all of the timezones across the world. The label on the marker will be the name of the time zone and it is placed in the central area of the time zone. Enjoy!
+
+# Libraries
+```{r, Libraries}
+library(tidyverse)
+library(here)
+library(NatParksPalettes)
+library(devtools)
+library(beyonce)
+library(ggthemes)
+library(hrbrthemes)
+library(viridis)
+library(patchwork)
+library(leaflet)
+library(sp)
+library(rgeos)
+library(readr)
+```
+
+# Read in data
+```{r, Read in Data}
+timezones <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/timezones.csv')
+timezone_countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/timezone_countries.csv')
+countries <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-03-28/countries.csv')
+```
+
+# Data Wrangling
+```{r}
+countries_tz <- full_join(countries, timezone_countries)
+countries_tz_complete <- full_join(countries_tz, timezones)
+```
+
+# Plotting using leaflet
+```{r, Timezone Map}
+leaflet(countries_tz_complete) %>% # call in my joined dataframe
+  addProviderTiles(providers$Esri.WorldImagery) %>% #i am using third party provider tiles, this one is called world imagery
+  addMarkers(
+  clusterOptions = markerClusterOptions(), #here you being to use the cluster option plug in within the addMarkers function to not only add the markers, but also to make them clusters
+  label = ~zone) #the column that has the names of the label I want to use
+
+```
+
